@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://cinemaapi-bd3i.onrender.com';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://cinemaapi-fn19.onrender.com';
 
 // ── Утилита запросов ─────────────────────────────────────────
 async function request(path, options = {}) {
