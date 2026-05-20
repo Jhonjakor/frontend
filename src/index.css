@@ -1,0 +1,986 @@
+/* ── Шрифты ── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Manrope:wght@400;500;600;700&display=swap');
+
+/* ── Переменные ── */
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-elevated: #1a1a26;
+  --border: #2a2a3d;
+  --accent: #e63946;
+  --accent-hover: #c1121f;
+  --gold: #ffd60a;
+  --text: #f0f0f5;
+  --text-muted: #8888aa;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* ── Сброс ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; display: block; }
+
+/* ── Navbar ── */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 64px;
+  background: rgba(10, 10, 15, 0.95);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.navbar-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-links a {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.navbar-links a:hover { color: var(--text); }
+
+/* ── Кнопки ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+.btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
+
+.btn-full { width: 100%; }
+.btn-lg { padding: 0.9rem 2rem; font-size: 1rem; }
+
+.btn-outline-sm {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  transition: all 0.2s;
+}
+.btn-outline-sm:hover { color: var(--text); border-color: var(--text-muted); }
+
+.btn-primary-sm {
+  background: var(--accent);
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-primary-sm:hover { background: var(--accent-hover); text-decoration: none; }
+
+.btn-sm {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+}
+.btn-sm.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+.btn-sm.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-sm.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-sm.btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* ── Страница ── */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ── Алерты ── */
+.alert {
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+.alert-error {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  color: #fca5a5;
+}
+
+/* ── Формы ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 0.7rem 1rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-group textarea { min-height: 80px; resize: vertical; }
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: -0.5rem;
+}
+
+/* ── Auth ── */
+.auth-page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow);
+}
+
+.auth-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.auth-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1.8rem;
+  font-size: 0.95rem;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Главная ── */
+.hero {
+  text-align: center;
+  padding: 3rem 0 2.5rem;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text);
+  padding: 0.8rem 1.5rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 500px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(230,57,70,0.15);
+}
+
+/* ── Карточки фильмов ── */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.movie-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  display: block;
+}
+
+.movie-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(230,57,70,0.2);
+  text-decoration: none;
+}
+
+.movie-poster {
+  position: relative;
+  aspect-ratio: 2/3;
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+.movie-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.movie-card:hover .movie-poster img { transform: scale(1.05); }
+
+.poster-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: var(--border);
+}
+
+.movie-rating {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.75);
+  color: var(--gold);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+
+.movie-info { padding: 1rem; }
+
+.movie-info h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  line-height: 1.3;
+}
+
+.movie-genre {
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.movie-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Детали фильма ── */
+.movie-detail {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.movie-detail-poster img,
+.poster-placeholder-lg {
+  width: 260px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.poster-placeholder-lg {
+  width: 260px;
+  height: 390px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  color: var(--border);
+}
+
+.movie-detail-info h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.movie-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.movie-description {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+/* ── Сеансы ── */
+.sessions-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.date-tabs {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.date-tab {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-tab:hover, .date-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.sessions-list { display: flex; flex-direction: column; gap: 0.8rem; }
+
+.session-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  transition: border-color 0.2s;
+}
+
+.session-card:hover { border-color: var(--border); }
+
+.session-time {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  min-width: 70px;
+}
+
+.session-details {
+  display: flex;
+  gap: 1.2rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.session-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* ── Выбор мест ── */
+.booking-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.booking-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+}
+
+.booking-header p { color: var(--text-muted); }
+
+.screen-label {
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.screen {
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  border-radius: 2px;
+  margin: 0 auto 2.5rem;
+  max-width: 600px;
+  box-shadow: 0 0 20px rgba(230,57,70,0.5);
+}
+
+.seats-map {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.seat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.row-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.seat {
+  width: 34px;
+  height: 30px;
+  border-radius: 6px 6px 3px 3px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Manrope', sans-serif;
+}
+
+.seat:hover:not(.seat-booked) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.seat-selected {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+  color: #fff !important;
+}
+
+.seat-vip {
+  border-color: var(--gold) !important;
+  color: var(--gold) !important;
+}
+
+.seat-vip.seat-selected {
+  background: var(--gold) !important;
+  border-color: var(--gold) !important;
+  color: #000 !important;
+}
+
+.seat-booked {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.15) !important;
+  cursor: not-allowed;
+}
+
+.seat-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.seat-legend span { display: flex; align-items: center; gap: 0.4rem; }
+
+.legend-box {
+  width: 22px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  display: inline-block;
+}
+
+.seat-free { background: var(--bg-elevated); }
+.seat-selected-demo { background: var(--success); border-color: var(--success); }
+.seat-vip-demo { background: transparent; border-color: var(--gold); }
+.seat-booked-demo { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
+
+.booking-summary {
+  position: sticky;
+  bottom: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: var(--shadow);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.summary-info {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.summary-info strong { color: var(--text); }
+
+/* ── Детали бронирования ── */
+.booking-detail-card {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.booking-status {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.booking-detail-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+}
+
+.booking-meta { color: var(--text-muted); font-size: 0.9rem; }
+
+.booking-seats h3 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; }
+
+.seats-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.seat-tag {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.8rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+}
+
+.seat-tag-vip { border-color: var(--gold); color: var(--gold); }
+
+.booking-total {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+.booking-total strong { color: var(--gold); font-size: 1.5rem; }
+
+.qr-section { text-align: center; }
+.qr-code {
+  font-family: monospace;
+  font-size: 1.8rem;
+  letter-spacing: 4px;
+  background: var(--bg-elevated);
+  padding: 1rem 2rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  display: inline-block;
+  margin: 0.5rem 0;
+  color: var(--success);
+}
+.qr-hint { font-size: 0.82rem; color: var(--text-muted); }
+
+.payment-section { display: flex; flex-direction: column; gap: 0.8rem; }
+.payment-section h3 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.payment-methods { display: flex; flex-direction: column; gap: 0.6rem; }
+.payment-methods label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0.7rem 1rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+.payment-methods label:hover { border-color: var(--accent); }
+.payment-methods input[type="radio"] { accent-color: var(--accent); }
+
+.payment-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+/* ── Профиль ── */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #9333ea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.profile-header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; }
+.profile-header p { color: var(--text-muted); }
+
+.role-badge {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.7rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 0.3rem;
+}
+
+.bookings-list { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1rem; }
+
+.booking-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.booking-item:hover {
+  border-color: var(--accent);
+  transform: translateX(4px);
+  text-decoration: none;
+}
+
+.booking-item-movie { font-weight: 700; flex: 2; }
+.booking-item-time { color: var(--text-muted); font-size: 0.88rem; flex: 2; }
+.booking-item-seats { color: var(--text-muted); font-size: 0.88rem; min-width: 70px; }
+.booking-item-price { font-weight: 700; color: var(--gold); min-width: 80px; }
+.booking-item-status { font-size: 0.88rem; font-weight: 600; min-width: 120px; }
+
+/* ── Admin ── */
+.admin-page h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.admin-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 0.7rem 1.2rem;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+
+.admin-tab:hover { color: var(--text); }
+.admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.admin-section { display: flex; flex-direction: column; gap: 2rem; }
+
+.admin-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-form h3 {
+  font-size: 1rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  background: var(--bg-elevated);
+  padding: 0.8rem 1rem;
+  text-align: left;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.admin-table td {
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Badges */
+.badge {
+  padding: 0.2rem 0.7rem;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-block;
+}
+.badge-green { background: rgba(16,185,129,0.15); color: #10b981; }
+.badge-red { background: rgba(239,68,68,0.15); color: #ef4444; }
+.badge-purple { background: rgba(147,51,234,0.15); color: #9333ea; }
+.badge-gray { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ── Утилиты ── */
+.loading {
+  text-align: center;
+  padding: 4rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.error {
+  text-align: center;
+  padding: 3rem;
+  color: var(--danger);
+}
+
+/* ── Адаптив ── */
+@media (max-width: 768px) {
+  .navbar { padding: 0 1rem; }
+  .navbar-brand { font-size: 1.1rem; }
+  .navbar-links { gap: 0.8rem; }
+  .navbar-links a { font-size: 0.85rem; }
+
+  .hero h1 { font-size: 2rem; }
+
+  .movie-detail {
+    grid-template-columns: 1fr;
+  }
+  .movie-detail-poster img,
+  .poster-placeholder-lg {
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+
+  .session-card {
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+
+  .booking-summary {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .booking-item {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .admin-tabs { flex-wrap: wrap; }
+  .form-row { flex-direction: column; }
+
+  .seat { width: 28px; height: 25px; font-size: 0.6rem; }
+}
