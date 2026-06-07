@@ -19,7 +19,19 @@ export default function Navbar() {
         {isAdmin && <Link to="/admin">Админ</Link>}
         {user ? (
           <>
-            <Link to="/profile">👤 {user.fullName?.split(' ')[0] || user.email}</Link>
+            <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+  {user.avatarUrl ? (
+    <img
+      src={user.avatarUrl}
+      alt="avatar"
+      style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }}
+      onError={e => e.target.style.display = 'none'}
+    />
+  ) : (
+    <span>👤</span>
+  )}
+  {user.fullName?.split(' ')[0] || user.email}
+</Link>
             <button className="btn btn-outline-sm" onClick={handleLogout}>Выйти</button>
           </>
         ) : (
