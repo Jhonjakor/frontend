@@ -6,6 +6,7 @@ export default function Profile() {
     firstName: '',
     lastName: '',
     phone: '',
+    avatarUrl: '',
   });
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,7 @@ export default function Profile() {
           firstName: user.firstName,
           lastName: user.lastName,
           phone: user.phone ?? '',
+          avatarUrl: user.avatarUrl ?? '',
         });
       })
       .catch((e) => setError(e.message))
@@ -42,6 +44,7 @@ export default function Profile() {
         firstName: form.firstName,
         lastName: form.lastName,
         phone: form.phone || null,
+         avatarUrl: form.avatarUrl || null, 
       });
       setSuccess('Профиль обновлён!');
     } catch (e) {
@@ -81,6 +84,27 @@ export default function Profile() {
             style={inputStyle}
           />
         </label>
+
+        {/* Превью аватарки */}
+{form.avatarUrl && (
+  <img
+    src={form.avatarUrl}
+    alt="Аватар"
+    style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 16 }}
+    onError={e => e.target.style.display = 'none'}
+  />
+)}
+
+<label>
+  Ссылка на аватарку
+  <input
+    name="avatarUrl"
+    value={form.avatarUrl}
+    onChange={handleChange}
+    placeholder="https://example.com/avatar.jpg"
+    style={inputStyle}
+  />
+</label>
 
         <label>
           Телефон
