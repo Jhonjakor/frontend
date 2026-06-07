@@ -1,5 +1,5 @@
 // Базовый URL бэкенда — замени на свой Render URL если деплоишь
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://cinemaapi-qsiv.onrender.com';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://cinemaapi-qsiv.onrender.com/api';
 
 // ── Хелпер: общий fetch с авторизацией ───────────────
 async function request(method, path, body = null) {
