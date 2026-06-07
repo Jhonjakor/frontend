@@ -1,5 +1,5 @@
-// Базовый URL бэкенда
-const BASE_URL = 'https://cinemaapi-qsiv.onrender.com';
+// Базовый URL бэкенда — замени на свой Render URL если деплоишь
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://cinemaapi-qsiv.onrender.com';
 
 // ── Хелпер: общий fetch с авторизацией ───────────────
 async function request(method, path, body = null) {
@@ -14,14 +14,24 @@ async function request(method, path, body = null) {
     body: body ? JSON.stringify(body) : null,
   });
 
-  // Для 204 No Content ничего не парсим
+  // 204 No Content — пустой ответ, всё ок
   if (res.status === 204) return null;
 
-  const data = await res.json();
+  // Читаем как текст сначала — защита от пустого тела
+  const text = await res.text();
+  if (!text) return null;
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    // Бэкенд вернул не-JSON (HTML страница ошибки и т.д.)
+    if (!res.ok) throw new Error(`Ошибка сервера ${res.status}`);
+    return null;
+  }
 
   if (!res.ok) {
-    // Пробрасываем сообщение из бэкенда
-    throw new Error(data.message || `Ошибка ${res.status}`);
+    throw new Error(data?.message || data?.title || `Ошибка ${res.status}`);
   }
 
   return data;
@@ -41,10 +51,7 @@ export const authApi = {
 // ══════════════════════════════════════════════════════
 
 export const usersApi = {
-  // Получить свой профиль
-  getMe: () => request('GET', '/users/me'),
-
-  // Обновить своё имя/фамилию/телефон
+  getMe:    ()    => request('GET', '/users/me'),
   updateMe: (dto) => request('PUT', '/users/me', dto),
 };
 
@@ -53,24 +60,16 @@ export const usersApi = {
 // ══════════════════════════════════════════════════════
 
 export const moviesApi = {
-  // Список (публичный). genre и isActive — опциональные фильтры
   getAll: (params = {}) => {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
     ).toString();
     return request('GET', `/movies${qs ? '?' + qs : ''}`);
   },
-
-  getById: (id) => request('GET', `/movies/${id}`),
-
-  // Admin: создать фильм
-  create: (dto) => request('POST', '/movies', dto),
-
-  // Admin: частичное обновление фильма
-  update: (id, dto) => request('PATCH', `/movies/${id}`, dto),
-
-  // Admin: деактивировать фильм (мягкое удаление)
-  delete: (id) => request('DELETE', `/movies/${id}`),
+  getById: (id)      => request('GET',    `/movies/${id}`),
+  create:  (dto)     => request('POST',   '/movies', dto),
+  update:  (id, dto) => request('PATCH',  `/movies/${id}`, dto),
+  delete:  (id)      => request('DELETE', `/movies/${id}`),
 };
 
 // ══════════════════════════════════════════════════════
@@ -78,8 +77,16 @@ export const moviesApi = {
 // ══════════════════════════════════════════════════════
 
 export const sessionsApi = {
+  getAll:     (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
+    ).toString();
+    return request('GET', `/sessions${qs ? '?' + qs : ''}`);
+  },
   getByMovie: (movieId) => request('GET', `/sessions?movieId=${movieId}`),
   getById:    (id)      => request('GET', `/sessions/${id}`),
+  create:     (dto)     => request('POST',   '/sessions', dto),
+  delete:     (id)      => request('DELETE', `/sessions/${id}`),
 };
 
 // ══════════════════════════════════════════════════════
@@ -109,8 +116,8 @@ export const bookingsApi = {
 // ══════════════════════════════════════════════════════
 
 export const paymentsApi = {
-  create: (dto) => request('POST', '/payments', dto),
-  getById: (id) => request('GET',  `/payments/${id}`),
+  create:  (dto) => request('POST', '/payments', dto),
+  getById: (id)  => request('GET',  `/payments/${id}`),
 };
 
 // ══════════════════════════════════════════════════════
