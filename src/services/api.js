@@ -1,4 +1,4 @@
-// Базовый URL бэкенда — замени на свой Render URL если деплоишь
+// Базовый URL бэкенда
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://cinemaapi-qsiv.onrender.com/api';
 
 // ── Хелпер: общий fetch с авторизацией ───────────────
@@ -14,10 +14,8 @@ async function request(method, path, body = null) {
     body: body ? JSON.stringify(body) : null,
   });
 
-  // 204 No Content — пустой ответ, всё ок
   if (res.status === 204) return null;
 
-  // Читаем как текст сначала — защита от пустого тела
   const text = await res.text();
   if (!text) return null;
 
@@ -25,7 +23,6 @@ async function request(method, path, body = null) {
   try {
     data = JSON.parse(text);
   } catch {
-    // Бэкенд вернул не-JSON (HTML страница ошибки и т.д.)
     if (!res.ok) throw new Error(`Ошибка сервера ${res.status}`);
     return null;
   }
@@ -47,12 +44,14 @@ export const authApi = {
 };
 
 // ══════════════════════════════════════════════════════
-// Users (профиль)
+// Users
 // ══════════════════════════════════════════════════════
 
 export const usersApi = {
-  getMe:    ()    => request('GET', '/users/me'),
-  updateMe: (dto) => request('PUT', '/users/me', dto),
+  getMe:    ()           => request('GET',   '/users/me'),
+  updateMe: (dto)        => request('PUT',   '/users/me', dto),
+  getAll:   ()           => request('GET',   '/users'),
+  setRole:  (id, role)   => request('PATCH', `/users/${id}/role`, { role }),
 };
 
 // ══════════════════════════════════════════════════════
@@ -60,7 +59,12 @@ export const usersApi = {
 // ══════════════════════════════════════════════════════
 
 export const moviesApi = {
-  getAll: (params = {}) => {
+  // getAll принимает объект { isActive, genre } или ничего
+  // AdminPanel передаёт getAll(true) — поддерживаем оба варианта
+  getAll: (paramsOrBool = {}) => {
+    const params = typeof paramsOrBool === 'boolean'
+      ? { isActive: paramsOrBool }
+      : paramsOrBool;
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
     ).toString();
@@ -77,14 +81,14 @@ export const moviesApi = {
 // ══════════════════════════════════════════════════════
 
 export const sessionsApi = {
-  getAll:     (params = {}) => {
+  getAll: (params = {}) => {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
     ).toString();
     return request('GET', `/sessions${qs ? '?' + qs : ''}`);
   },
-  getByMovie: (movieId) => request('GET', `/sessions?movieId=${movieId}`),
-  getById:    (id)      => request('GET', `/sessions/${id}`),
+  getByMovie: (movieId) => request('GET',    `/sessions?movieId=${movieId}`),
+  getById:    (id)      => request('GET',    `/sessions/${id}`),
   create:     (dto)     => request('POST',   '/sessions', dto),
   delete:     (id)      => request('DELETE', `/sessions/${id}`),
 };
