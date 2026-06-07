@@ -1,5 +1,5 @@
 // Базовый URL бэкенда
-const BASE_URL = 'http://localhost:5115/api';
+const BASE_URL = 'https://cinemaapi-qsiv.onrender.com';
 
 // ── Хелпер: общий fetch с авторизацией ───────────────
 async function request(method, path, body = null) {
