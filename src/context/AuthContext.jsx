@@ -21,11 +21,16 @@ export function AuthProvider({ children }) {
 
   const login = (tokenData) => {
     localStorage.setItem('token', tokenData.token);
-    setUser({
-      email: tokenData.email,
-      fullName: tokenData.fullName,
-      role: tokenData.role,
-    });
+    // Догружаем полный профиль чтобы сразу получить avatarUrl
+    usersApi.getMe()
+      .then(setUser)
+      .catch(() => {
+        setUser({
+          email: tokenData.email,
+          fullName: tokenData.fullName,
+          role: tokenData.role,
+        });
+      });
   };
 
   const logout = () => {
@@ -33,8 +38,20 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  // Перезагрузить профиль (например после смены аватарки)
+  const refreshUser = () => {
+    usersApi.getMe().then(setUser).catch(() => {});
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, isAdmin: user?.role === 'Admin' }}>
+    <AuthContext.Provider value={{
+      user,
+      login,
+      logout,
+      loading,
+      refreshUser,
+      isAdmin: user?.role === 'Admin',
+    }}>
       {children}
     </AuthContext.Provider>
   );
