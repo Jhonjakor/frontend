@@ -28,7 +28,7 @@ export default function Profile() {
           avatarUrl: user.avatarUrl ?? '',
         });
       })
-      .catch((e) => setError(e.message))
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -50,8 +50,8 @@ export default function Profile() {
       });
       refreshUser(); // ← обновляет аватарку в шапке сразу
       setSuccess('Профиль обновлён!');
-    } catch (e) {
-      setError(e.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setSaving(false);
     }
