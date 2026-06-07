@@ -18,6 +18,7 @@ export default function AdminPanel() {
   const [usersList, setUsersList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editMovie, setEditMovie] = useState(null);
 
   // Формы
   const [movieForm, setMovieForm] = useState({
@@ -176,6 +177,64 @@ export default function AdminPanel() {
             </div>
             <button type="submit" className="btn btn-primary">Добавить фильм</button>
           </form>
+          {editMovie && (
+  <form className="admin-form" style={{ border: '1px solid #e53e3e', marginBottom: 24 }}
+    onSubmit={async (e) => {
+      e.preventDefault();
+      try {
+        await moviesApi.update(editMovie.id, {
+          title:           editMovie.title,
+          description:     editMovie.description,
+          genre:           editMovie.genre,
+          durationMinutes: +editMovie.durationMinutes,
+          rating:          +editMovie.rating,
+          posterUrl:       editMovie.posterUrl || null,
+        });
+        setEditMovie(null);
+        await loadAll();
+      } catch (e) { setError(e.message); }
+    }}>
+    <h3>✎ Редактировать: {editMovie.title}</h3>
+    <div className="form-row">
+      <div className="form-group">
+        <label>Название</label>
+        <input value={editMovie.title}
+          onChange={e => setEditMovie({...editMovie, title: e.target.value})} required />
+      </div>
+      <div className="form-group">
+        <label>Жанр</label>
+        <input value={editMovie.genre}
+          onChange={e => setEditMovie({...editMovie, genre: e.target.value})} required />
+      </div>
+    </div>
+    <div className="form-group">
+      <label>Описание</label>
+      <textarea value={editMovie.description}
+        onChange={e => setEditMovie({...editMovie, description: e.target.value})} required />
+    </div>
+    <div className="form-row">
+      <div className="form-group">
+        <label>Длительность (мин)</label>
+        <input type="number" value={editMovie.durationMinutes}
+          onChange={e => setEditMovie({...editMovie, durationMinutes: e.target.value})} required />
+      </div>
+      <div className="form-group">
+        <label>Рейтинг</label>
+        <input type="number" step="0.1" min="0" max="10" value={editMovie.rating}
+          onChange={e => setEditMovie({...editMovie, rating: e.target.value})} required />
+      </div>
+    </div>
+    <div className="form-group">
+      <label>URL постера</label>
+      <input value={editMovie.posterUrl || ''}
+        onChange={e => setEditMovie({...editMovie, posterUrl: e.target.value})} />
+    </div>
+    <div style={{ display: 'flex', gap: 12 }}>
+      <button type="submit" className="btn btn-primary">Сохранить</button>
+      <button type="button" className="btn btn-secondary" onClick={() => setEditMovie(null)}>Отмена</button>
+    </div>
+  </form>
+)}
 
           <div className="admin-table-wrap">
             <table className="admin-table">
@@ -188,7 +247,10 @@ export default function AdminPanel() {
                     <td>{m.durationMinutes}</td>
                     <td>⭐ {m.rating}</td>
                     <td><span className={`badge ${m.isActive !== false ? 'badge-green' : 'badge-red'}`}>{m.isActive !== false ? 'Активен' : 'Скрыт'}</span></td>
-                    <td><button className="btn-sm btn-danger" onClick={() => deleteMovie(m.id)}>✕</button></td>
+                    <td style={{ display: 'flex', gap: 6 }}>
+                      <button className="btn-sm btn-secondary" onClick={() => setEditMovie(m)}>✎</button>
+                      <button className="btn-sm btn-danger" onClick={() => deleteMovie(m.id)}>✕</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
