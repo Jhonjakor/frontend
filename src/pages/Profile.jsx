@@ -1,68 +1,125 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { bookings as bookingsApi, users as usersApi } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { usersApi } from '../services/api';
 
 export default function Profile() {
-  const { user } = useAuth();
-  const [bookings, setBookings] = useState([]);
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+  });
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
+  // Загрузить текущий профиль при монтировании
   useEffect(() => {
-    bookingsApi.getAll()
-      .then(setBookings)
-      .catch(console.error)
+    usersApi.getMe()
+      .then((user) => {
+        setEmail(user.email);
+        setForm({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phone: user.phone ?? '',
+        });
+      })
+      .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  const statusLabel = {
-    Pending: { text: '⏳ Ожидает', color: '#f59e0b' },
-    Paid: { text: '✅ Оплачено', color: '#10b981' },
-    Cancelled: { text: '❌ Отменено', color: '#ef4444' },
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setSuccess('');
+    setError('');
+
+    try {
+      await usersApi.updateMe({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phone: form.phone || null,
+      });
+      setSuccess('Профиль обновлён!');
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
+  if (loading) return <p>Загрузка...</p>;
+
   return (
-    <div className="page">
-      <div className="profile-header">
-        <div className="avatar">{user?.fullName?.[0] || user?.email?.[0] || '?'}</div>
-        <div>
-          <h1>{user?.fullName || user?.email}</h1>
-          <p>{user?.email}</p>
-          <span className="role-badge">{user?.role === 'Admin' ? '👑 Администратор' : '🎟 Пользователь'}</span>
-        </div>
-      </div>
+    <div style={{ maxWidth: 420, margin: '40px auto', fontFamily: 'sans-serif' }}>
+      <h2>Мой профиль</h2>
 
-      <h2>Мои бронирования</h2>
+      <p style={{ color: '#666' }}>{email}</p>
 
-      {loading ? (
-        <div className="loading">Загрузка...</div>
-      ) : bookings.length === 0 ? (
-        <div className="empty">
-          <p>У вас пока нет бронирований</p>
-          <Link to="/" className="btn btn-primary">Выбрать фильм</Link>
-        </div>
-      ) : (
-        <div className="bookings-list">
-          {bookings.map(b => (
-            <Link to={`/bookings/${b.id}`} key={b.id} className="booking-item">
-              <div className="booking-item-movie">{b.movieTitle}</div>
-              <div className="booking-item-time">
-                {new Date(b.sessionTime).toLocaleString('ru-RU', {
-                  day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
-                })}
-              </div>
-              <div className="booking-item-seats">
-                {b.seats.length} {b.seats.length === 1 ? 'место' : 'мест'}
-              </div>
-              <div className="booking-item-price">{b.totalPrice} ₽</div>
-              <div className="booking-item-status"
-                style={{ color: statusLabel[b.status]?.color }}>
-                {statusLabel[b.status]?.text}
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+      <form onSubmit={handleSubmit}>
+        <label>
+          Имя
+          <input
+            name="firstName"
+            value={form.firstName}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+          />
+        </label>
+
+        <label>
+          Фамилия
+          <input
+            name="lastName"
+            value={form.lastName}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+          />
+        </label>
+
+        <label>
+          Телефон
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="+7..."
+            style={inputStyle}
+          />
+        </label>
+
+        {error   && <p style={{ color: 'red'   }}>{error}</p>}
+        {success && <p style={{ color: 'green' }}>{success}</p>}
+
+        <button type="submit" disabled={saving} style={btnStyle}>
+          {saving ? 'Сохраняем...' : 'Сохранить'}
+        </button>
+      </form>
     </div>
   );
 }
+
+const inputStyle = {
+  display: 'block',
+  width: '100%',
+  padding: '8px',
+  marginBottom: 16,
+  borderRadius: 6,
+  border: '1px solid #ccc',
+};
+
+const btnStyle = {
+  width: '100%',
+  padding: '10px',
+  background: '#2563eb',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 6,
+  cursor: 'pointer',
+  fontSize: 15,
+};
