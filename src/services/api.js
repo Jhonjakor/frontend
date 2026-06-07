@@ -83,11 +83,44 @@ export const sessionsApi = {
 };
 
 // ══════════════════════════════════════════════════════
+// Halls
+// ══════════════════════════════════════════════════════
+
+export const hallsApi = {
+  getAll:  ()        => request('GET',    '/halls'),
+  getById: (id)      => request('GET',    `/halls/${id}`),
+  create:  (dto)     => request('POST',   '/halls', dto),
+  delete:  (id)      => request('DELETE', `/halls/${id}`),
+};
+
+// ══════════════════════════════════════════════════════
+// Bookings
+// ══════════════════════════════════════════════════════
+
+export const bookingsApi = {
+  getMyBookings: ()    => request('GET',  '/bookings/my'),
+  getById:       (id)  => request('GET',  `/bookings/${id}`),
+  create:        (dto) => request('POST', '/bookings', dto),
+  cancel:        (id)  => request('POST', `/bookings/${id}/cancel`),
+};
+
+// ══════════════════════════════════════════════════════
+// Payments
+// ══════════════════════════════════════════════════════
+
+export const paymentsApi = {
+  create: (dto) => request('POST', '/payments', dto),
+  getById: (id) => request('GET',  `/payments/${id}`),
+};
+
+// ══════════════════════════════════════════════════════
 // Алиасы для обратной совместимости
-// (старый код делает: import { auth } from '../services/api')
 // ══════════════════════════════════════════════════════
 
 export const auth     = authApi;
 export const users    = usersApi;
 export const movies   = moviesApi;
 export const sessions = sessionsApi;
+export const halls    = hallsApi;
+export const bookings = bookingsApi;
+export const payments = paymentsApi;
