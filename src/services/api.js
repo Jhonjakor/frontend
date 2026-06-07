@@ -72,3 +72,22 @@ export const moviesApi = {
   // Admin: деактивировать фильм (мягкое удаление)
   delete: (id) => request('DELETE', `/movies/${id}`),
 };
+
+// ══════════════════════════════════════════════════════
+// Sessions
+// ══════════════════════════════════════════════════════
+
+export const sessionsApi = {
+  getByMovie: (movieId) => request('GET', `/sessions?movieId=${movieId}`),
+  getById:    (id)      => request('GET', `/sessions/${id}`),
+};
+
+// ══════════════════════════════════════════════════════
+// Алиасы для обратной совместимости
+// (старый код делает: import { auth } from '../services/api')
+// ══════════════════════════════════════════════════════
+
+export const auth     = authApi;
+export const users    = usersApi;
+export const movies   = moviesApi;
+export const sessions = sessionsApi;
