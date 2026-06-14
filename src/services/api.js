@@ -1,7 +1,13 @@
-// Базовый URL бэкенда
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://cinemaapi-qsiv.onrender.com/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5115/api';
 
-// ── Хелпер: общий fetch с авторизацией ───────────────
+export function toQuery(params = {}) {
+  const entries = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '');
+
+  const query = new URLSearchParams(entries).toString();
+  return query ? `?${query}` : '';
+}
+
 async function request(method, path, body = null) {
   const token = localStorage.getItem('token');
 
@@ -17,121 +23,91 @@ async function request(method, path, body = null) {
   if (res.status === 204) return null;
 
   const text = await res.text();
-  if (!text) return null;
+  let data = null;
 
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    if (!res.ok) throw new Error(`Ошибка сервера ${res.status}`);
-    return null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
+    }
   }
 
   if (!res.ok) {
-    throw new Error(data?.message || data?.title || `Ошибка ${res.status}`);
+    const error = new Error(data?.message || data?.title || `Ошибка ${res.status}`);
+    error.status = res.status;
+    error.data = data;
+    throw error;
   }
 
   return data;
 }
 
-// ══════════════════════════════════════════════════════
-// Auth
-// ══════════════════════════════════════════════════════
-
 export const authApi = {
   register: (dto) => request('POST', '/auth/register', dto),
-  login:    (dto) => request('POST', '/auth/login', dto),
+  login: (dto) => request('POST', '/auth/login', dto),
 };
-
-// ══════════════════════════════════════════════════════
-// Users
-// ══════════════════════════════════════════════════════
 
 export const usersApi = {
-  getMe:    ()           => request('GET',   '/users/me'),
-  updateMe: (dto)        => request('PUT',   '/users/me', dto),
-  getAll:   ()           => request('GET',   '/users'),
-  setRole:  (id, role)   => request('PATCH', `/users/${id}/role`, { role }),
+  getMe: () => request('GET', '/users/me'),
+  updateMe: (dto) => request('PUT', '/users/me', dto),
+  getAll: () => request('GET', '/users'),
+  setRole: (id, role) => request('PATCH', `/users/${id}/role`, { role }),
 };
 
-// ══════════════════════════════════════════════════════
-// Movies
-// ══════════════════════════════════════════════════════
-
 export const moviesApi = {
-  // getAll принимает объект { isActive, genre } или ничего
-  // AdminPanel передаёт getAll(true) — поддерживаем оба варианта
   getAll: (paramsOrBool = {}) => {
     const params = typeof paramsOrBool === 'boolean'
       ? { isActive: paramsOrBool }
       : paramsOrBool;
-    const qs = new URLSearchParams(
-      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
-    ).toString();
-    return request('GET', `/movies${qs ? '?' + qs : ''}`);
+    return request('GET', `/movies${toQuery(params)}`);
   },
-  getById: (id)      => request('GET',    `/movies/${id}`),
-  create:  (dto)     => request('POST',   '/movies', dto),
-  update:  (id, dto) => request('PATCH',  `/movies/${id}`, dto),
-  delete:  (id)      => request('DELETE', `/movies/${id}`),
+  getById: (id) => request('GET', `/movies/${id}`),
+  create: (dto) => request('POST', '/movies', dto),
+  update: (id, dto) => request('PATCH', `/movies/${id}`, dto),
+  delete: (id) => request('DELETE', `/movies/${id}`),
 };
-
-// ══════════════════════════════════════════════════════
-// Sessions
-// ══════════════════════════════════════════════════════
 
 export const sessionsApi = {
-  getAll: (params = {}) => {
-    const qs = new URLSearchParams(
-      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
-    ).toString();
-    return request('GET', `/sessions${qs ? '?' + qs : ''}`);
-  },
-  getByMovie: (movieId) => request('GET',    `/sessions?movieId=${movieId}`),
-  getById:    (id)      => request('GET',    `/sessions/${id}`),
-  create:     (dto)     => request('POST',   '/sessions', dto),
-  delete:     (id)      => request('DELETE', `/sessions/${id}`),
+  getAll: (params = {}) => request('GET', `/sessions${toQuery(params)}`),
+  getByMovie: (movieId) => request('GET', `/sessions${toQuery({ movieId })}`),
+  getById: (id) => request('GET', `/sessions/${id}`),
+  getSeats: (id) => request('GET', `/sessions/${id}/seats`),
+  create: (dto) => request('POST', '/sessions', dto),
+  delete: (id) => request('DELETE', `/sessions/${id}`),
 };
-
-// ══════════════════════════════════════════════════════
-// Halls
-// ══════════════════════════════════════════════════════
 
 export const hallsApi = {
-  getAll:  ()        => request('GET',    '/halls'),
-  getById: (id)      => request('GET',    `/halls/${id}`),
-  create:  (dto)     => request('POST',   '/halls', dto),
-  delete:  (id)      => request('DELETE', `/halls/${id}`),
+  getAll: () => request('GET', '/halls'),
+  getById: (id) => request('GET', `/halls/${id}`),
+  create: (dto) => request('POST', '/halls', dto),
+  delete: (id) => request('DELETE', `/halls/${id}`),
 };
-
-// ══════════════════════════════════════════════════════
-// Bookings
-// ══════════════════════════════════════════════════════
 
 export const bookingsApi = {
-  getMyBookings: ()    => request('GET',  '/bookings/my'),
-  getById:       (id)  => request('GET',  `/bookings/${id}`),
-  create:        (dto) => request('POST', '/bookings', dto),
-  cancel:        (id)  => request('POST', `/bookings/${id}/cancel`),
+  getAll: () => request('GET', '/bookings'),
+  getMyBookings: () => request('GET', '/bookings/my'),
+  getById: (id) => request('GET', `/bookings/${id}`),
+  create: (dto) => request('POST', '/bookings', dto),
+  cancel: (id) => request('POST', `/bookings/${id}/cancel`),
 };
-
-// ══════════════════════════════════════════════════════
-// Payments
-// ══════════════════════════════════════════════════════
 
 export const paymentsApi = {
-  create:  (dto) => request('POST', '/payments', dto),
-  getById: (id)  => request('GET',  `/payments/${id}`),
+  create: (dto) => request('POST', '/payments', dto),
+  pay: (dto) => request('POST', '/payments', dto),
+  getByBooking: (bookingId) => request('GET', `/payments/${bookingId}`),
 };
 
-// ══════════════════════════════════════════════════════
-// Алиасы для обратной совместимости
-// ══════════════════════════════════════════════════════
+export const reportsApi = {
+  sales: (params = {}) => request('GET', `/reports/sales${toQuery(params)}`),
+  occupancy: (params = {}) => request('GET', `/reports/occupancy${toQuery(params)}`),
+};
 
-export const auth     = authApi;
-export const users    = usersApi;
-export const movies   = moviesApi;
+export const auth = authApi;
+export const users = usersApi;
+export const movies = moviesApi;
 export const sessions = sessionsApi;
-export const halls    = hallsApi;
+export const halls = hallsApi;
 export const bookings = bookingsApi;
 export const payments = paymentsApi;
+export const reports = reportsApi;

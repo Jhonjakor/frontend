@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { sessions as sessionsApi, bookings as bookingsApi } from '../services/api';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { bookings as bookingsApi, sessions as sessionsApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function SeatSelection() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [session, setSession] = useState(null);
   const [seats, setSeats] = useState([]);
   const [selected, setSelected] = useState([]);
@@ -12,54 +14,84 @@ export default function SeatSelection() {
   const [booking, setBooking] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    Promise.all([
+  const loadSeats = useCallback(async () => {
+    const [sessionData, seatsData] = await Promise.all([
       sessionsApi.getById(id),
-      sessionsApi.getSeats(id)
-    ]).then(([s, seatsData]) => {
-      setSession(s);
-      setSeats(seatsData);
-    }).catch(console.error)
-      .finally(() => setLoading(false));
+      sessionsApi.getSeats(id),
+    ]);
+    setSession(sessionData);
+    setSeats(seatsData);
+    setSelected((prev) => prev.filter((seat) => {
+      const fresh = seatsData.find((item) => getSeatId(item) === getSeatId(seat));
+      return fresh && !isOccupied(fresh);
+    }));
   }, [id]);
 
+  useEffect(() => {
+    setLoading(true);
+    setError('');
+    loadSeats()
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [loadSeats]);
+
+  const rows = useMemo(() => seats.reduce((acc, seat) => {
+    if (!acc[seat.row]) acc[seat.row] = [];
+    acc[seat.row].push(seat);
+    return acc;
+  }, {}), [seats]);
+
+  const totalPrice = selected.reduce((sum, seat) => sum + Number(seat.price ?? session?.price ?? 0), 0);
+
   const toggleSeat = (seat) => {
-    if (seat.isBooked) return;
-    setSelected(prev =>
-      prev.find(s => s.id === seat.id)
-        ? prev.filter(s => s.id !== seat.id)
+    if (isOccupied(seat)) return;
+    const seatId = getSeatId(seat);
+    setSelected((prev) =>
+      prev.some((item) => getSeatId(item) === seatId)
+        ? prev.filter((item) => getSeatId(item) !== seatId)
         : [...prev, seat]
     );
   };
 
   const handleBook = async () => {
-    if (selected.length === 0) return;
+    if (!user && !localStorage.getItem('token')) {
+      navigate('/login');
+      return;
+    }
+
+    if (selected.length === 0) {
+      setError('Выберите хотя бы одно место');
+      return;
+    }
+
     setBooking(true);
     setError('');
+
     try {
       const result = await bookingsApi.create({
         sessionId: id,
-        seatIds: selected.map(s => s.id)
+        seatIds: selected.map(getSeatId),
       });
       navigate(`/bookings/${result.id}`);
     } catch (err) {
-      setError(err.message);
+      if (err.status === 401) {
+        navigate('/login');
+        return;
+      }
+
+      if (err.status === 409) {
+        setError('Выбранные места уже заняты. Обновите схему зала');
+        await loadSeats();
+      } else {
+        setError(err.message);
+      }
     } finally {
       setBooking(false);
     }
   };
 
   if (loading) return <div className="loading">Загрузка...</div>;
-  if (!session) return <div className="error">Сеанс не найден</div>;
-
-  // Группируем места по рядам
-  const rows = seats.reduce((acc, seat) => {
-    if (!acc[seat.row]) acc[seat.row] = [];
-    acc[seat.row].push(seat);
-    return acc;
-  }, {});
-
-  const totalPrice = selected.length * session.price;
+  if (!session) return <div className="error">{error || 'Сеанс не найден'}</div>;
 
   return (
     <div className="page">
@@ -67,7 +99,10 @@ export default function SeatSelection() {
         <h1>{session.movieTitle}</h1>
         <p>
           {new Date(session.startTime).toLocaleString('ru-RU', {
-            day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+            day: 'numeric',
+            month: 'long',
+            hour: '2-digit',
+            minute: '2-digit',
           })} · {session.hallName}
         </p>
       </div>
@@ -79,21 +114,23 @@ export default function SeatSelection() {
         {Object.entries(rows).map(([row, rowSeats]) => (
           <div key={row} className="seat-row">
             <span className="row-label">{row}</span>
-            {rowSeats.map(seat => (
-              <button
-                key={seat.id}
-                className={`seat
-                  ${seat.isBooked ? 'seat-booked' : ''}
-                  ${seat.type === 'VIP' ? 'seat-vip' : ''}
-                  ${selected.find(s => s.id === seat.id) ? 'seat-selected' : ''}
-                `}
-                onClick={() => toggleSeat(seat)}
-                disabled={seat.isBooked}
-                title={`Ряд ${seat.row}, место ${seat.number}${seat.type === 'VIP' ? ' (VIP)' : ''}`}
-              >
-                {seat.number}
-              </button>
-            ))}
+            {rowSeats.map((seat) => {
+              const seatId = getSeatId(seat);
+              const occupied = isOccupied(seat);
+              const isSelected = selected.some((item) => getSeatId(item) === seatId);
+
+              return (
+                <button
+                  key={seatId}
+                  className={`seat ${occupied ? 'seat-booked' : ''} ${seat.type === 'VIP' ? 'seat-vip' : ''} ${isSelected ? 'seat-selected' : ''}`}
+                  onClick={() => toggleSeat(seat)}
+                  disabled={occupied}
+                  title={`Ряд ${seat.row}, место ${seat.number}${seat.type === 'VIP' ? ' (VIP)' : ''}`}
+                >
+                  {seat.number}
+                </button>
+              );
+            })}
           </div>
         ))}
       </div>
@@ -111,17 +148,29 @@ export default function SeatSelection() {
         <div className="booking-summary">
           <div className="summary-info">
             <span>Выбрано мест: {selected.length}</span>
-            <span>Итого: <strong>{totalPrice} ₽</strong></span>
+            <span>Итого: <strong>{formatRub(totalPrice)}</strong></span>
           </div>
           <button
             className="btn btn-primary btn-lg"
             onClick={handleBook}
             disabled={booking}
           >
-            {booking ? 'Бронируем...' : `Забронировать за ${totalPrice} ₽`}
+            {booking ? 'Бронируем...' : `Забронировать за ${formatRub(totalPrice)}`}
           </button>
         </div>
       )}
     </div>
   );
+}
+
+function getSeatId(seat) {
+  return seat.seatId ?? seat.id;
+}
+
+function isOccupied(seat) {
+  return Boolean(seat.isOccupied ?? seat.isBooked);
+}
+
+function formatRub(value) {
+  return `${Number(value).toLocaleString('ru-RU')} ₽`;
 }
